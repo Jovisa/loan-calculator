@@ -25,29 +25,40 @@ public class LoanService {
                     request.annualInterestRate(),
                     request.numberOfMonths());
 
-        BigDecimal monthlyRate = amortizationCalculator.getMonthlyInterestRate(request.annualInterestRate());
+        BigDecimal monthlyInterestRate = amortizationCalculator.getMonthlyInterestRate(request.annualInterestRate());
 
-        List<InstallmentDto> plan =
+        List<InstallmentDto> installmentPlan =
                 amortizationCalculator.generateInstallmentPlan(
                     request.amount(),
-                    monthlyRate,
+                    monthlyInterestRate,
                     request.numberOfMonths(),
                     monthlyPayment);
 
-        BigDecimal totalPayments = plan.stream()
+        SummaryDto summary = buildSummary(request.amount(), monthlyPayment, installmentPlan);
+
+        return new LoanCalculationResponse(request, summary, installmentPlan);
+    }
+
+    private SummaryDto buildSummary(BigDecimal loanAmount,
+                                    BigDecimal monthlyPayment,
+                                    List<InstallmentDto> installmentPlan) {
+
+        BigDecimal totalPaymentAmount = calculateTotalPayments(installmentPlan);
+        BigDecimal totalInterestAmount = calculateTotalInterest(totalPaymentAmount, loanAmount);
+
+        return new SummaryDto(monthlyPayment, totalPaymentAmount, totalInterestAmount);
+    }
+
+    private BigDecimal calculateTotalPayments(List<InstallmentDto> installmentPlan) {
+        return installmentPlan.stream()
                 .map(InstallmentDto::payment)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
 
-        BigDecimal totalInterest = totalPayments.subtract(request.amount())
+    private BigDecimal calculateTotalInterest(BigDecimal totalPayments, BigDecimal principal) {
+        return totalPayments.subtract(principal)
                 .setScale(2, RoundingMode.HALF_UP);
-
-        SummaryDto summary = new SummaryDto(
-                monthlyPayment,
-                totalPayments,
-                totalInterest);
-
-        return new LoanCalculationResponse(request, summary, plan);
     }
 
 }

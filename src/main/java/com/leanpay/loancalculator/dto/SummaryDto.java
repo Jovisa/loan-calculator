@@ -6,4 +6,4 @@ public record SummaryDto(
         BigDecimal monthlyPayment,
         BigDecimal totalPayments,
         BigDecimal totalInterest
-) {}
+) { }

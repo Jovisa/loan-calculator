@@ -11,7 +11,6 @@ import java.util.List;
 @Component
 public class AmortizationCalculator {
 
-
     public BigDecimal calculateMonthlyPayment(BigDecimal principal,
                                                      BigDecimal annualInterestRate,
                                                      int months) {
@@ -48,7 +47,6 @@ public class AmortizationCalculator {
             BigDecimal principalPayment = calculatePrincipalPayment(monthlyPayment, interest);
             BigDecimal newBalance = balance.subtract(principalPayment).setScale(2, RoundingMode.HALF_UP);
 
-            // Last payment adjustment
             if (period == months && newBalance.compareTo(BigDecimal.ZERO) != 0) {
                 principalPayment = balance.setScale(2, RoundingMode.HALF_UP);
                 monthlyPayment = principalPayment.add(interest).setScale(2, RoundingMode.HALF_UP);

@@ -8,5 +8,5 @@ public record InstallmentDto(
         BigDecimal principal,
         BigDecimal interest,
         BigDecimal balance
-) {}
+) { }
 
