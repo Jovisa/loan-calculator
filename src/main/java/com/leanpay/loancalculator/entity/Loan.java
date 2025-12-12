@@ -27,6 +27,20 @@ public class Loan {
 
     //todo @EntityGraph
     @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @Setter(AccessLevel.NONE)
     private List<Installment> installments = new ArrayList<>();
+
+
+    public void addInstallments(List<Installment> installments) {
+        if (installments == null || installments.isEmpty()) return;
+        installments.forEach(this::addInstallment);
+    }
+
+    public void addInstallment(Installment installment) {
+        if(installment == null) return;
+        installment.setLoan(this);
+        this.installments.add(installment);
+    }
 }
 

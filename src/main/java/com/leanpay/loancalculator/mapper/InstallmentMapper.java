@@ -9,22 +9,6 @@ import java.util.List;
 @Component
 public class InstallmentMapper {
 
-    public Installment toEntity(InstallmentDto dto) {
-        return Installment.builder()
-                .period(dto.period())
-                .payment(dto.payment())
-                .principal(dto.principal())
-                .interest(dto.interest())
-                .balance(dto.balance())
-                .build();
-    }
-
-    public List<Installment> toEntityList(List<InstallmentDto> dtos) {
-        return dtos.stream()
-                .map(this::toEntity)
-                .toList();
-    }
-
     public InstallmentDto toDto(Installment installment) {
         return new InstallmentDto(
                 installment.getPeriod(),
@@ -40,4 +24,5 @@ public class InstallmentMapper {
                 .map(this::toDto)
                 .toList();
     }
+
 }

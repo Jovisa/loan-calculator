@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
-//todo maybe needed and maybe not
 
 @Component
 @RequiredArgsConstructor
