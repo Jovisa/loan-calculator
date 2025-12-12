@@ -5,5 +5,5 @@ import java.math.BigDecimal;
 public record LoanCalculationRequest(
         BigDecimal amount,
         BigDecimal annualInterestRate,
-        int numberOfMonths
+        Integer numberOfMonths
 ) { }

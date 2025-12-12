@@ -1,1 +1,1 @@
-# LeanPay challenge
+# Loan Calculator
