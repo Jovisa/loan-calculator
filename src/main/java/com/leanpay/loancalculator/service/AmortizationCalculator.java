@@ -71,11 +71,9 @@ public class AmortizationCalculator {
                 .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
     }
 
-    private List<Installment> generateInstallments(
-            LoanCalculationRequest request,
-            BigDecimal monthlyRate,
-            BigDecimal monthlyPayment
-    ) {
+    private List<Installment> generateInstallments(LoanCalculationRequest request,
+                                                   BigDecimal monthlyRate,
+                                                   BigDecimal monthlyPayment) {
         BigDecimal principal = request.amount();
         Integer months = request.numberOfMonths();
 

@@ -14,8 +14,8 @@ public class LoanController {
     private final LoanService loanService;
 
     @PostMapping
-    public LoanCalculationResponse calculateLoan(@RequestBody LoanCalculationRequest requestDto) {
-        return loanService.calculateLoan(requestDto);
+    public LoanCalculationResponse calculateLoan(@RequestBody LoanCalculationRequest request) {
+        return loanService.calculateLoan(request);
     }
 
 }
