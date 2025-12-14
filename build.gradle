@@ -45,21 +45,22 @@ jacocoTestReport {
              'com/leanpay/loancalculator/dto/**',
              'com/leanpay/loancalculator/exception/dto',
              'com/leanpay/loancalculator/LoanCalculatorApplication.*',
-
-             'com/leanpay/loancalculator/repository' //todo skip repository for now
+             'com/leanpay/loancalculator/repository'
          ]) })
     )
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.5.6'
-	implementation 'org.springframework.boot:spring-boot-h2console'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+    annotationProcessor 'org.projectlombok:lombok'
+
     runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'com.h2database:h2'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
