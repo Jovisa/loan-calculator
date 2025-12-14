@@ -3,10 +3,11 @@ spring:
   application:
     name: loan-calculator
   datasource:
-    url: jdbc:h2:mem:loandb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/loan_calculator
+    username: user
+    password: pass
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -14,8 +15,4 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+        dialect: org.hibernate.dialect.PostgreSQLDialect
