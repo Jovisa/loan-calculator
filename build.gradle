@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.leanpay'
@@ -22,6 +23,32 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = false
+        csv.required = false
+        html.required = true
+    }
+
+    classDirectories.setFrom(
+         files(classDirectories.files.collect { fileTree(dir: it, exclude: [
+             'com/leanpay/loancalculator/entity/**',
+             'com/leanpay/loancalculator/dto/**',
+             'com/leanpay/loancalculator/exception/dto',
+             'com/leanpay/loancalculator/LoanCalculatorApplication.*',
+
+             'com/leanpay/loancalculator/repository' //todo skip repository for now
+         ]) })
+    )
 }
 
 dependencies {
