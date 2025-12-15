@@ -173,18 +173,21 @@ sequenceDiagram
     participant LoanController
     participant LoanService
     participant LoanRepository
-    participant InstallmentRepository
+    participant AmortizationCalculator
 
     Client->>+LoanController: POST /loans {amount, rate, months}
     LoanController->>LoanService: validate & processLoan(request)
     LoanService->>LoanRepository: findByAmountAndInterestAndMonths()
+    
     alt Loan exists
         LoanRepository-->>LoanService: existing Loan (idempotent)
     else Loan does not exist
-        LoanService->>Loan: calculate installments
-        LoanService->>InstallmentRepository: saveAll(installments)
+        LoanService->>AmortizationCalculator: calculateAndBuildLoan(request)
+        AmortizationCalculator-->>LoanService: Loan object with its Installments
         LoanService->>LoanRepository: save(loan)
+        LoanRepository-->>LoanService: persisted Loan
     end
+    
     LoanService-->>LoanController: loan details + plan
     LoanController-->>-Client: HTTP 200 + JSON response
 ```
