@@ -107,7 +107,7 @@ To run the full suite of unit and integration tests, execute the following comma
 
 ## API Contract
 
-### Endpoint: POST `/loans`
+### Endpoint: `POST /loans`
 
 ### Description
 - Calculates loan amortization schedule
