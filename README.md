@@ -9,6 +9,7 @@ Fintech application for calculating loan amortization schedules. <br>
 - [Running Application Locally](#running-application-locally)
 - [API Contract](#api-contract)
 - [Class Diagram](#class-diagram)
+- [Sequence Diagram](#sequence-diagram)
 - [Testing and Coverage](#testing-and-coverage)
 
 ## Prerequisites
@@ -162,6 +163,30 @@ classDiagram
         +setLoan(Loan)
     }
     Loan  -->  Installment : one to many
+```
+
+## Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant LoanController
+    participant LoanService
+    participant LoanRepository
+    participant InstallmentRepository
+
+    Client->>+LoanController: POST /loans {amount, rate, months}
+    LoanController->>LoanService: validate & processLoan(request)
+    LoanService->>LoanRepository: findByAmountAndInterestAndMonths()
+    alt Loan exists
+        LoanRepository-->>LoanService: existing Loan (idempotent)
+    else Loan does not exist
+        LoanService->>Loan: calculate installments
+        LoanService->>InstallmentRepository: saveAll(installments)
+        LoanService->>LoanRepository: save(loan)
+    end
+    LoanService-->>LoanController: loan details + plan
+    LoanController-->>-Client: HTTP 200 + JSON response
 ```
 
 
