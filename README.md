@@ -3,6 +3,14 @@
 Fintech application for calculating loan amortization schedules. <br>
 
 
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Tech Stack](#tech-stack)
+- [Running Application Locally](#running-application-locally)
+- [API Contract](#api-contract)
+- [Class Diagram](#class-diagram)
+- [Testing and Coverage](#testing-and-coverage)
+
 ## Prerequisites
 - Java 21+
 - Docker 28.3.2 or higher (required for PostgreSQL and Testcontainers)
@@ -124,9 +132,9 @@ Fintech application for calculating loan amortization schedules. <br>
 
 <br><br>
 
-## UML Class Diagram
+## Class Diagram
 
-<div align="center">
+
 
   ```mermaid
 classDiagram
@@ -155,5 +163,22 @@ classDiagram
     }
     Loan  -->  Installment : one to many
 ```
-</div>
 
+
+<br>
+
+## Testing and Coverage
+
+- **Run all tests:**
+    ```sh
+    .gradlew test
+    ```
+- **Generate Code Coverage Report**
+    ```sh
+    .gradlew jacocoTestReport
+    ```
+Then open `build/reports/jacoco/test/html/index.html` to view report.
+
+
+- **Integration Tests:**
+  - IntegrationTests will run in separate PosgreSQL base runnign in Docker container (via Testcontainers)
