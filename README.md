@@ -34,17 +34,8 @@ Before you begin, ensure you have the following installed on your system:
 | **Containerization**| Docker                                                      |
 
 ---
-<br>
 
 ## Running Application Locally
-1. make sure that `Docker` is running
-2. from project root run: `docker compose up -d` to start the Database
-3. start application
-    - from IntelliJ IDEA
-    - or via gradle by running: `./gradlew bootRun` (Linux / Mac) or `./gradlew.bat bootRun` (Windows)
-
-
-Follow these steps to get your development environment up and running.
 
 ### 1. Start the Database
 First, ensure the Docker daemon is running on your machine. Then, start the PostgreSQL database using Docker Compose.
