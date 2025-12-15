@@ -181,4 +181,5 @@ Then open `build/reports/jacoco/test/html/index.html` to view report.
 
 
 - **Integration Tests:**
-  - IntegrationTests will run in separate PosgreSQL base runnign in Docker container (via Testcontainers)
+  - IntegrationTests will run with a test DB running in a separate Docker container (via Testcontainers)
+  - Container will be created before tests run and destroyed right after tests finish
