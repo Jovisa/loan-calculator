@@ -34,6 +34,7 @@ Before you begin, ensure you have the following installed on your system:
 | **Containerization**| Docker                                                      |
 
 ---
+<br>
 
 ## Running Application Locally
 1. make sure that `Docker` is running
@@ -109,7 +110,7 @@ To run the full suite of unit and integration tests, execute the following comma
   - IntegrationTests will run with a test PostgreSQL DB running in a separate Docker container (via Testcontainers)
   - Container will be created before tests run and destroyed right after tests finish
 
-
+---
 <br>
   
 
@@ -205,8 +206,9 @@ To run the full suite of unit and integration tests, execute the following comma
   ]
 }
 ```
+---
 
-<br><br>
+<br>
 
 ## Class Diagram
 
