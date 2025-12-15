@@ -7,6 +7,9 @@ import com.leanpay.loancalculator.mapper.LoanCalculationResponseMapper;
 import com.leanpay.loancalculator.repository.LoanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,11 +19,24 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final LoanCalculationResponseMapper responseMapper;
 
-
+    @Transactional
     public LoanCalculationResponse calculateLoan(LoanCalculationRequest request) {
+        return getLoanIfExists(request)
+                .map(responseMapper::toResponse)
+                .orElseGet(() -> createAndSaveLoan(request));
+    }
+
+    private Optional<Loan> getLoanIfExists(LoanCalculationRequest request) {
+        return loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
+                request.amount(),
+                request.annualInterestRate(),
+                request.numberOfMonths()
+        );
+    }
+
+    private LoanCalculationResponse createAndSaveLoan(LoanCalculationRequest request) {
         Loan loan = amortizationCalculator.calculateAndBuildLoan(request);
-        Loan savedLoan = loanRepository.save(loan);
-        return responseMapper.toResponse(savedLoan);
+        return responseMapper.toResponse(loanRepository.save(loan));
     }
 
 }

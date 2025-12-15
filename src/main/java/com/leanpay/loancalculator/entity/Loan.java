@@ -13,10 +13,19 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "loan",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"amount", "annualInterestRate", "numberOfMonths"}
+        )
+)
 public class Loan {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Integer version;
 
     private BigDecimal amount;
     private BigDecimal annualInterestRate;
@@ -25,7 +34,6 @@ public class Loan {
     private BigDecimal totalPayments;
     private BigDecimal totalInterest;
 
-    //todo @EntityGraph
     @OneToMany(mappedBy = "loan", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @Setter(AccessLevel.NONE)
