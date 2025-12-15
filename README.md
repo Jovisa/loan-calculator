@@ -122,5 +122,38 @@ Fintech application for calculating loan amortization schedules. <br>
 }
 ```
 
+<br><br>
 
+## UML Class Diagram
+
+<div align="center">
+
+  ```mermaid
+classDiagram
+    class Loan {
+        Long id
+        Integer version
+        BigDecimal amount
+        BigDecimal annualInterestRate
+        Integer numberOfMonths
+        BigDecimal monthlyPayment
+        BigDecimal totalPayments
+        BigDecimal totalInterest
+        List~Installment~ installments
+        +addInstallment(Installment)
+        +addInstallments(List~Installment~)
+    }
+    class Installment {
+        Long id
+        Integer period
+        BigDecimal payment
+        BigDecimal principal
+        BigDecimal interest
+        BigDecimal balance
+        Loan loan
+        +setLoan(Loan)
+    }
+    Loan  -->  Installment : one to many
+```
+</div>
 
