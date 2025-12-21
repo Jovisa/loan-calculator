@@ -4,7 +4,7 @@ import com.leanpay.loancalculator.dto.LoanCalculationRequest;
 import com.leanpay.loancalculator.dto.LoanCalculationResponse;
 import com.leanpay.loancalculator.dto.SummaryDto;
 import com.leanpay.loancalculator.entity.Loan;
-import com.leanpay.loancalculator.mapper.LoanCalculationResponseMapper;
+import com.leanpay.loancalculator.mapper.LoanMapper;
 import com.leanpay.loancalculator.repository.LoanRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ class LoanServiceTest {
     private LoanRepository loanRepository;
 
     @Mock
-    private LoanCalculationResponseMapper responseMapper;
+    private LoanMapper responseMapper;
 
     @InjectMocks
     private LoanService loanService;

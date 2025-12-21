@@ -44,8 +44,7 @@ jacocoTestReport {
              'com/leanpay/loancalculator/entity/**',
              'com/leanpay/loancalculator/dto/**',
              'com/leanpay/loancalculator/exception/dto',
-             'com/leanpay/loancalculator/LoanCalculatorApplication.*',
-             'com/leanpay/loancalculator/repository'
+             'com/leanpay/loancalculator/LoanCalculatorApplication.*'
          ]) })
     )
 }

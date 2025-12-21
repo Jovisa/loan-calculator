@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LoanCalculationResponseMapperTest {
+class LoanMapperTest {
 
     private final InstallmentMapper installmentMapper = new InstallmentMapper();
-    private final LoanCalculationResponseMapper mapper =
-            new LoanCalculationResponseMapper(installmentMapper);
+    private final LoanMapper mapper =
+            new LoanMapper(installmentMapper);
 
     @Test
     void shouldMapLoanToResponse() {
