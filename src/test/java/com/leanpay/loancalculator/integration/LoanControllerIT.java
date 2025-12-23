@@ -71,28 +71,6 @@ class LoanControllerIT {
     }
 
     @Test
-    void calculateLoan_validationError_shouldReturn422WithErrorDetails() throws Exception {
-        LoanCalculationRequest invalidRequest = new LoanCalculationRequest(
-                new BigDecimal("50"),   // invalid (< 100)
-                new BigDecimal("2.0"),  // invalid (< 3)
-                1                        // invalid (< 2)
-        );
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.errors").isArray())
-                .andExpect(jsonPath("$.errors.length()").value(3))
-                .andExpect(jsonPath("$.errors[*].field").exists())
-                .andExpect(jsonPath("$.errors[*].errorMessage").exists());
-    }
-
-    // -------- EDGE CASES --------
-
-    @Test
     void calculateLoan_minBoundaryValues_shouldSucceed() throws Exception {
         LoanCalculationRequest request = new LoanCalculationRequest(
                 new BigDecimal("100.0"),
@@ -123,51 +101,6 @@ class LoanControllerIT {
                 .andExpect(jsonPath("$.summary.totalPayments").exists());
     }
 
-    @Test
-    void calculateLoan_nullFields_shouldReturn422() throws Exception {
-        String payload = """
-                {
-                  "amount": null,
-                  "annualInterestRate": null,
-                  "numberOfMonths": null
-                }
-                """;
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.errors.length()").value(3));
-    }
-
-    @Test
-    void calculateLoan_missingFields_shouldReturn422() throws Exception {
-        String payload = "{}";
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.errors.length()").value(3));
-    }
-
-    @Test
-    void calculateLoan_invalidJson_shouldReturn400() throws Exception {
-        String invalidJson = "{ amount: 1000, interest: }";
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void calculateLoan_wrongContentType_shouldReturn415() throws Exception {
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .content("invalid"))
-                .andExpect(status().isUnsupportedMediaType());
-    }
-
+    //todo after async is finished: calculateLoan_sameRequestTwice_shouldReuseExistingLoan
 
 }

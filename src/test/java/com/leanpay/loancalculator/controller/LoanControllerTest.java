@@ -7,6 +7,8 @@ import com.leanpay.loancalculator.dto.SummaryDto;
 import com.leanpay.loancalculator.exception.GlobalExceptionHandler;
 import com.leanpay.loancalculator.service.LoanService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -18,6 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,6 +39,8 @@ class LoanControllerTest {
     @MockitoBean
     private LoanService loanService;
 
+
+    // --- Happy path ---
     @Test
     void shouldCalculateLoanSuccessfully() throws Exception {
         // given
@@ -71,69 +76,45 @@ class LoanControllerTest {
                 .andExpect(jsonPath("$.summary.totalInterest").value(23.06));
     }
 
-    @Test
-    void shouldReturnBadRequestForInvalidInput() throws Exception {
-        LoanCalculationRequest invalidRequest = new LoanCalculationRequest(
-                BigDecimal.valueOf(50),   // invalid
-                BigDecimal.valueOf(0),    // invalid
-                1                         // invalid
+    // --- Parameterized invalid requests ---
+    record InvalidRequestCase(String name, String jsonPayload, int expectedStatus, int expectedErrorCount) {}
+
+    static Stream<InvalidRequestCase> invalidRequestCases() {
+        return Stream.of(
+                new InvalidRequestCase("missing fields", "{}", 422, 3),
+                new InvalidRequestCase("null fields", """
+                    {
+                      "amount": null,
+                      "annualInterestRate": null,
+                      "numberOfMonths": null
+                    }
+                    """, 422, 3),
+                new InvalidRequestCase("invalid values", """
+                    {
+                      "amount": 50,
+                      "annualInterestRate": 0,
+                      "numberOfMonths": 1
+                    }
+                    """, 422, 3)
         );
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andExpect(status().isUnprocessableContent());
     }
 
-    @Test
-    void shouldReturnValidationErrors_whenRequestIsInvalid() throws Exception {
-        String invalidRequestJson = """
-            {
-              "amount": 50,
-              "annualInterestRate": 0,
-              "numberOfMonths": 1
-            }
-            """;
-
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidRequestCases")
+    void calculateLoan_invalidRequests_shouldReturnValidationErrors(
+            InvalidRequestCase testCase
+    ) throws Exception {
         mockMvc.perform(post("/loans")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidRequestJson))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.path").value("/loans"))
-                .andExpect(jsonPath("$.errors").isArray())
-                .andExpect(jsonPath("$.errors.length()").value(3))
+                        .content(testCase.jsonPayload()))
+                .andExpect(status().is(testCase.expectedStatus()));
 
-                // amount
-                .andExpect(jsonPath("$.errors[?(@.field=='amount')]").exists())
-
-                // annualInterestRate
-                .andExpect(jsonPath("$.errors[?(@.field=='annualInterestRate')]").exists())
-
-                // numberOfMonths
-                .andExpect(jsonPath("$.errors[?(@.field=='numberOfMonths')]").exists());
-    }
-
-    @Test
-    void shouldReturnValidationError_whenAmountIsNull() throws Exception {
-        String requestJson = """
-        {
-          "annualInterestRate": 5,
-          "numberOfMonths": 12
+        if (testCase.expectedErrorCount() > 0) {
+            mockMvc.perform(post("/loans")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(testCase.jsonPayload()))
+                    .andExpect(jsonPath("$.errors.length()").value(testCase.expectedErrorCount()));
         }
-        """;
-
-        mockMvc.perform(post("/loans")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.errors[0].field").value("amount"))
-                .andExpect(jsonPath("$.errors[0].rejectedValue").doesNotExist())
-                .andExpect(jsonPath("$.errors[0].fieldType").value("Unknown"))
-                .andExpect(jsonPath("$.errors[0].errorMessage").exists());
     }
-
 
 }

@@ -21,17 +21,17 @@ class AmortizationCalculatorTest {
         calculator = new AmortizationCalculator();
     }
 
+
+    private static final LoanCalculationRequest REQUEST = 
+            new LoanCalculationRequest(
+                    BigDecimal.valueOf(1000),
+                    BigDecimal.valueOf(5),
+                    10);
+
     @Test
     void shouldCalculateLoanAndGenerateInstallmentPlan() {
-        // given
-        LoanCalculationRequest request = new LoanCalculationRequest(
-                new BigDecimal("1000"),
-                new BigDecimal("5"),
-                10
-        );
-
         // when
-        Loan loan = calculator.calculateAndBuildLoan(request);
+        Loan loan = calculator.calculateAndBuildLoan(REQUEST);
 
         // then
         assertThat(loan).isNotNull();
@@ -47,15 +47,8 @@ class AmortizationCalculatorTest {
 
     @Test
     void shouldSetLoanReferenceOnEachInstallment() {
-        // given
-        LoanCalculationRequest request = new LoanCalculationRequest(
-                new BigDecimal("1000"),
-                new BigDecimal("5"),
-                10
-        );
-
         // when
-        Loan loan = calculator.calculateAndBuildLoan(request);
+        Loan loan = calculator.calculateAndBuildLoan(REQUEST);
 
         // then
         loan.getInstallments()
@@ -66,15 +59,8 @@ class AmortizationCalculatorTest {
 
     @Test
     void shouldCalculateTotalsCorrectly() {
-        // given
-        LoanCalculationRequest request = new LoanCalculationRequest(
-                new BigDecimal("1000"),
-                new BigDecimal("5"),
-                10
-        );
-
         // when
-        Loan loan = calculator.calculateAndBuildLoan(request);
+        Loan loan = calculator.calculateAndBuildLoan(REQUEST);
 
         // then
         assertThat(loan.getTotalPayments())
@@ -86,15 +72,8 @@ class AmortizationCalculatorTest {
 
     @Test
     void shouldGenerateCorrectFirstAndLastInstallment() {
-        // given
-        LoanCalculationRequest request = new LoanCalculationRequest(
-                new BigDecimal("1000"),
-                new BigDecimal("5"),
-                10
-        );
-
         // when
-        Loan loan = calculator.calculateAndBuildLoan(request);
+        Loan loan = calculator.calculateAndBuildLoan(REQUEST);
         List<Installment> installments = loan.getInstallments();
 
         Installment first = installments.getFirst();

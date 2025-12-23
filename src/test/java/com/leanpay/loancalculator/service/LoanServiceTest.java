@@ -34,68 +34,63 @@ class LoanServiceTest {
     @InjectMocks
     private LoanService loanService;
 
+
+    private static final LoanCalculationRequest REQUEST =
+            new LoanCalculationRequest(
+                    BigDecimal.valueOf(1000),
+                    BigDecimal.valueOf(5),
+                    10);
+
+    private static final LoanCalculationResponse RESPONSE =
+            new LoanCalculationResponse(
+                    REQUEST,
+                    new SummaryDto(
+                            BigDecimal.valueOf(102.31),
+                            BigDecimal.valueOf(1023.06),
+                            BigDecimal.valueOf(23.06)
+                    ),
+                    List.of()
+            );
+
+
+
     @Test
     void calculateLoan_whenLoanDoesNotExist_shouldCalculateSaveAndReturnResponse() {
         // given
-        LoanCalculationRequest request =
-                new LoanCalculationRequest(
-                        BigDecimal.valueOf(1000),
-                        BigDecimal.valueOf(5),
-                        10
-                );
+        Loan calculatedLoan = getDefaultLoanBuilder().build();
 
-        Loan calculatedLoan = Loan.builder()
-                .amount(request.amount())
-                .annualInterestRate(request.annualInterestRate())
-                .numberOfMonths(request.numberOfMonths())
-                .build();
-
-        Loan savedLoan = Loan.builder()
+        Loan savedLoan = getDefaultLoanBuilder()
                 .id(1L)
-                .amount(request.amount())
-                .annualInterestRate(request.annualInterestRate())
-                .numberOfMonths(request.numberOfMonths())
                 .build();
-
-        LoanCalculationResponse expectedResponse =
-                new LoanCalculationResponse(
-                        request,
-                        new SummaryDto(
-                                BigDecimal.valueOf(102.31),
-                                BigDecimal.valueOf(1023.06),
-                                BigDecimal.valueOf(23.06)
-                        ),
-                        List.of()
-                );
 
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
-                request.amount(),
-                request.annualInterestRate(),
-                request.numberOfMonths()))
+                REQUEST.amount(),
+                REQUEST.annualInterestRate(),
+                REQUEST.numberOfMonths()))
                 .thenReturn(Optional.empty());
 
-        when(amortizationCalculator.calculateAndBuildLoan(request))
+        when(amortizationCalculator.calculateAndBuildLoan(REQUEST))
                 .thenReturn(calculatedLoan);
 
         when(loanRepository.save(calculatedLoan))
                 .thenReturn(savedLoan);
 
         when(responseMapper.toResponse(savedLoan))
-                .thenReturn(expectedResponse);
+                .thenReturn(RESPONSE);
 
         // when
         LoanCalculationResponse actualResponse =
-                loanService.calculateLoan(request);
+                loanService.calculateLoan(REQUEST);
 
         // then
-        assertThat(actualResponse).isEqualTo(expectedResponse);
+        assertThat(actualResponse).isEqualTo(RESPONSE);
 
         verify(loanRepository).findByAmountAndAnnualInterestRateAndNumberOfMonths(
-                request.amount(),
-                request.annualInterestRate(),
-                request.numberOfMonths()
+                REQUEST.amount(),
+                REQUEST.annualInterestRate(),
+                REQUEST.numberOfMonths()
         );
-        verify(amortizationCalculator).calculateAndBuildLoan(request);
+        verify(amortizationCalculator).calculateAndBuildLoan(REQUEST);
         verify(loanRepository).save(calculatedLoan);
         verify(responseMapper).toResponse(savedLoan);
 
@@ -109,51 +104,30 @@ class LoanServiceTest {
     @Test
     void calculateLoan_whenLoanAlreadyExists_shouldReturnExistingLoanWithoutSaving() {
         // given
-        LoanCalculationRequest request =
-                new LoanCalculationRequest(
-                        BigDecimal.valueOf(1000),
-                        BigDecimal.valueOf(5),
-                        10
-                );
-
-        Loan existingLoan = Loan.builder()
+        Loan existingLoan = getDefaultLoanBuilder()
                 .id(42L)
-                .amount(request.amount())
-                .annualInterestRate(request.annualInterestRate())
-                .numberOfMonths(request.numberOfMonths())
                 .build();
 
-        LoanCalculationResponse expectedResponse =
-                new LoanCalculationResponse(
-                        request,
-                        new SummaryDto(
-                                BigDecimal.valueOf(102.31),
-                                BigDecimal.valueOf(1023.06),
-                                BigDecimal.valueOf(23.06)
-                        ),
-                        List.of()
-                );
-
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
-                request.amount(),
-                request.annualInterestRate(),
-                request.numberOfMonths()))
+                REQUEST.amount(),
+                REQUEST.annualInterestRate(),
+                REQUEST.numberOfMonths()))
                 .thenReturn(Optional.of(existingLoan));
 
         when(responseMapper.toResponse(existingLoan))
-                .thenReturn(expectedResponse);
+                .thenReturn(RESPONSE);
 
         // when
         LoanCalculationResponse actualResponse =
-                loanService.calculateLoan(request);
+                loanService.calculateLoan(REQUEST);
 
         // then
-        assertThat(actualResponse).isEqualTo(expectedResponse);
+        assertThat(actualResponse).isEqualTo(RESPONSE);
 
         verify(loanRepository).findByAmountAndAnnualInterestRateAndNumberOfMonths(
-                request.amount(),
-                request.annualInterestRate(),
-                request.numberOfMonths()
+                REQUEST.amount(),
+                REQUEST.annualInterestRate(),
+                REQUEST.numberOfMonths()
         );
         verify(responseMapper).toResponse(existingLoan);
 
@@ -164,6 +138,13 @@ class LoanServiceTest {
                 loanRepository,
                 responseMapper
         );
+    }
+
+    private Loan.LoanBuilder getDefaultLoanBuilder() {
+        return Loan.builder()
+                .amount(REQUEST.amount())
+                .annualInterestRate(REQUEST.annualInterestRate())
+                .numberOfMonths(REQUEST.numberOfMonths());
     }
 
 }
