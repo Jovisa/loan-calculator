@@ -1,4 +1,4 @@
-package com.leanpay.loancalculator.dto;
+package com.leanpay.loancalculator.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;

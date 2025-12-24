@@ -1,8 +1,7 @@
 package com.leanpay.loancalculator.mapper;
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
-import com.leanpay.loancalculator.dto.LoanCalculationResponse;
-import com.leanpay.loancalculator.dto.SummaryDto;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.response.*;
 import com.leanpay.loancalculator.entity.Loan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,9 +14,18 @@ public class LoanCalculationResponseMapper {
 
     private final InstallmentMapper installmentMapper;
 
-    public LoanCalculationResponse toResponse(Loan loan) {
+
+    public LoanResponse toStatusResponse(LoanCalculationRequest request) {
+        return new LoanStatusResponse(
+                request,
+                LoanStatus.CALCULATING
+        );
+    }
+
+    public LoanResponse toResponse(Loan loan) {
         return new LoanCalculationResponse(
                 buildLoanDetails(loan),
+                LoanStatus.DONE,
                 buildSummary(loan),
                 installmentMapper.toDtoList(loan.getInstallments())
         );

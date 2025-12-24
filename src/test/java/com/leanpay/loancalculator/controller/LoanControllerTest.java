@@ -1,9 +1,10 @@
 package com.leanpay.loancalculator.controller;
 
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
-import com.leanpay.loancalculator.dto.LoanCalculationResponse;
-import com.leanpay.loancalculator.dto.SummaryDto;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.response.LoanCalculationResponse;
+import com.leanpay.loancalculator.dto.response.LoanStatus;
+import com.leanpay.loancalculator.dto.response.SummaryDto;
 import com.leanpay.loancalculator.exception.GlobalExceptionHandler;
 import com.leanpay.loancalculator.service.LoanService;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,7 @@ class LoanControllerTest {
 
         LoanCalculationResponse response = new LoanCalculationResponse(
                 request,
+                LoanStatus.DONE,
                 new SummaryDto(
                         BigDecimal.valueOf(102.31),
                         BigDecimal.valueOf(1023.06),

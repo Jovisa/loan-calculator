@@ -1,4 +1,4 @@
-package com.leanpay.loancalculator.dto;
+package com.leanpay.loancalculator.dto.response;
 
 import java.math.BigDecimal;
 

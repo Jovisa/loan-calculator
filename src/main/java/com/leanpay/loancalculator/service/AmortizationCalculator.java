@@ -1,6 +1,6 @@
 package com.leanpay.loancalculator.service;
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
 import com.leanpay.loancalculator.entity.Installment;
 import com.leanpay.loancalculator.entity.Loan;
 import org.springframework.stereotype.Component;
@@ -14,6 +14,14 @@ import java.util.List;
 public class AmortizationCalculator {
 
     public Loan calculateAndBuildLoan(LoanCalculationRequest request) {
+
+        // simulating expensive operation
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         BigDecimal monthlyPayment = calculateMonthlyPayment(request);
         BigDecimal monthlyInterestRate = getMonthlyInterestRate(request.annualInterestRate());
 

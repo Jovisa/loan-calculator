@@ -1,8 +1,7 @@
 package com.leanpay.loancalculator.service;
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
-import com.leanpay.loancalculator.dto.LoanCalculationResponse;
-import com.leanpay.loancalculator.dto.SummaryDto;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.response.*;
 import com.leanpay.loancalculator.entity.Loan;
 import com.leanpay.loancalculator.mapper.LoanCalculationResponseMapper;
 import com.leanpay.loancalculator.repository.LoanRepository;
@@ -23,27 +22,33 @@ import static org.mockito.Mockito.*;
 class LoanServiceTest {
 
     @Mock
-    private AmortizationCalculator amortizationCalculator;
-
-    @Mock
     private LoanRepository loanRepository;
 
     @Mock
     private LoanCalculationResponseMapper responseMapper;
 
+    @Mock
+    private AsyncLoanCreationService asyncLoanCreationService;
+
     @InjectMocks
     private LoanService loanService;
+
 
 
     private static final LoanCalculationRequest REQUEST =
             new LoanCalculationRequest(
                     BigDecimal.valueOf(1000),
                     BigDecimal.valueOf(5),
-                    10);
+                    10
+            );
+
+    private static final LoanResponse STATUS_RESPONSE =
+            new LoanStatusResponse(REQUEST, LoanStatus.CALCULATING);
 
     private static final LoanCalculationResponse RESPONSE =
             new LoanCalculationResponse(
                     REQUEST,
+                    LoanStatus.DONE,
                     new SummaryDto(
                             BigDecimal.valueOf(102.31),
                             BigDecimal.valueOf(1023.06),
@@ -53,72 +58,64 @@ class LoanServiceTest {
             );
 
 
-
     @Test
-    void calculateLoan_whenLoanDoesNotExist_shouldCalculateSaveAndReturnResponse() {
+    void calculateLoan_whenLoanDoesNotExist_shouldTriggerAsyncCreationAndReturnStatusResponse() {
         // given
-        Loan calculatedLoan = getDefaultLoanBuilder().build();
-
-        Loan savedLoan = getDefaultLoanBuilder()
-                .id(1L)
-                .build();
-
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
                 REQUEST.annualInterestRate(),
-                REQUEST.numberOfMonths()))
-                .thenReturn(Optional.empty());
+                REQUEST.numberOfMonths()
+        )).thenReturn(Optional.empty());
 
-        when(amortizationCalculator.calculateAndBuildLoan(REQUEST))
-                .thenReturn(calculatedLoan);
-
-        when(loanRepository.save(calculatedLoan))
-                .thenReturn(savedLoan);
-
-        when(responseMapper.toResponse(savedLoan))
-                .thenReturn(RESPONSE);
+        when(responseMapper.toStatusResponse(REQUEST))
+                .thenReturn(STATUS_RESPONSE);
 
         // when
-        LoanCalculationResponse actualResponse =
+        LoanResponse actualResponse =
                 loanService.calculateLoan(REQUEST);
 
         // then
-        assertThat(actualResponse).isEqualTo(RESPONSE);
+        assertThat(actualResponse).isEqualTo(STATUS_RESPONSE);
 
         verify(loanRepository).findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
                 REQUEST.annualInterestRate(),
                 REQUEST.numberOfMonths()
         );
-        verify(amortizationCalculator).calculateAndBuildLoan(REQUEST);
-        verify(loanRepository).save(calculatedLoan);
-        verify(responseMapper).toResponse(savedLoan);
+
+        verify(asyncLoanCreationService).createAndSaveLoanAsync(REQUEST);
+        verify(responseMapper).toStatusResponse(REQUEST);
+
+        verify(loanRepository, never()).save(any());
 
         verifyNoMoreInteractions(
-                amortizationCalculator,
                 loanRepository,
-                responseMapper
+                responseMapper,
+                asyncLoanCreationService
         );
     }
 
     @Test
-    void calculateLoan_whenLoanAlreadyExists_shouldReturnExistingLoanWithoutSaving() {
+    void calculateLoan_whenLoanAlreadyExists_shouldReturnExistingLoanSynchronously() {
         // given
-        Loan existingLoan = getDefaultLoanBuilder()
+        Loan existingLoan = Loan.builder()
                 .id(42L)
+                .amount(REQUEST.amount())
+                .annualInterestRate(REQUEST.annualInterestRate())
+                .numberOfMonths(REQUEST.numberOfMonths())
                 .build();
 
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
                 REQUEST.annualInterestRate(),
-                REQUEST.numberOfMonths()))
-                .thenReturn(Optional.of(existingLoan));
+                REQUEST.numberOfMonths()
+        )).thenReturn(Optional.of(existingLoan));
 
         when(responseMapper.toResponse(existingLoan))
                 .thenReturn(RESPONSE);
 
         // when
-        LoanCalculationResponse actualResponse =
+        LoanResponse actualResponse =
                 loanService.calculateLoan(REQUEST);
 
         // then
@@ -131,7 +128,7 @@ class LoanServiceTest {
         );
         verify(responseMapper).toResponse(existingLoan);
 
-        verifyNoInteractions(amortizationCalculator);
+        verifyNoInteractions(asyncLoanCreationService);
         verify(loanRepository, never()).save(any());
 
         verifyNoMoreInteractions(
@@ -139,12 +136,5 @@ class LoanServiceTest {
                 responseMapper
         );
     }
-
-    private Loan.LoanBuilder getDefaultLoanBuilder() {
-        return Loan.builder()
-                .amount(REQUEST.amount())
-                .annualInterestRate(REQUEST.annualInterestRate())
-                .numberOfMonths(REQUEST.numberOfMonths());
-    }
-
 }
+

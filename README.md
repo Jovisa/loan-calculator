@@ -113,6 +113,7 @@ To run the full suite of unit and integration tests, execute the following comma
 - Calculates loan amortization schedule
 - Calculated loans and installment plans are persisted in database
 - **Idempotent**: identical requests (same amount, interest rate, and duration) return the same persisted loan instead of creating duplicates.
+- **Asynchronous**: Loan calculation is an expensive operation (≈ 10 seconds) and is therefore processed asynchronously
 
 
 ### Request
@@ -153,6 +154,10 @@ To run the full suite of unit and integration tests, execute the following comma
 
 
 ### Response
+
+#### 1. Status Response (Calculation in progress)
+Returned when the loan calculation has **not finished yet**.
+
 ```json
 {
   "loan": {
@@ -160,6 +165,29 @@ To run the full suite of unit and integration tests, execute the following comma
     "annualInterestRate": 5,
     "numberOfMonths": 4
   },
+  "status": "CALCULATING"
+}
+```
+
+#### Notes
+- Indicates that the loan calculation has been accepted and is currently being processed
+
+- Clients may safely retry the same request
+
+- Retrying does not create duplicate loans
+---
+
+#### 2. Full Response (Calculation completed)
+Returned once the loan calculation has finished.
+
+```json
+{
+  "loan": {
+    "amount": 1000,
+    "annualInterestRate": 5,
+    "numberOfMonths": 4
+  },
+  "status": "DONE",
   "summary": {
     "monthlyPayment": 252.61,
     "totalPayments": 1010.44,

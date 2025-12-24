@@ -1,7 +1,7 @@
 package com.leanpay.loancalculator.service;
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
-import com.leanpay.loancalculator.dto.LoanCalculationResponse;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.response.LoanResponse;
 import com.leanpay.loancalculator.entity.Loan;
 import com.leanpay.loancalculator.mapper.LoanCalculationResponseMapper;
 import com.leanpay.loancalculator.repository.LoanRepository;
@@ -15,12 +15,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LoanService {
 
-    private final AmortizationCalculator amortizationCalculator;
     private final LoanRepository loanRepository;
     private final LoanCalculationResponseMapper responseMapper;
+    private final AsyncLoanCreationService asyncLoanCreationService;
 
     @Transactional
-    public LoanCalculationResponse calculateLoan(LoanCalculationRequest request) {
+    public LoanResponse calculateLoan(LoanCalculationRequest request) {
         return getLoanIfExists(request)
                 .map(responseMapper::toResponse)
                 .orElseGet(() -> createAndSaveLoan(request));
@@ -34,9 +34,11 @@ public class LoanService {
         );
     }
 
-    private LoanCalculationResponse createAndSaveLoan(LoanCalculationRequest request) {
-        Loan loan = amortizationCalculator.calculateAndBuildLoan(request);
-        return responseMapper.toResponse(loanRepository.save(loan));
+    // todo DataIntegrityViolationException
+
+    private LoanResponse createAndSaveLoan(LoanCalculationRequest request) {
+        asyncLoanCreationService.createAndSaveLoanAsync(request);
+        return responseMapper.toStatusResponse(request);
     }
 
 }

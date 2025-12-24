@@ -1,6 +1,6 @@
 package com.leanpay.loancalculator.mapper;
 
-import com.leanpay.loancalculator.dto.LoanCalculationResponse;
+import com.leanpay.loancalculator.dto.response.LoanCalculationResponse;
 import com.leanpay.loancalculator.entity.Installment;
 import com.leanpay.loancalculator.entity.Loan;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class LoanCalculationResponseMapperTest {
 
         loan.addInstallment(installment);
 
-        LoanCalculationResponse response = mapper.toResponse(loan);
+        LoanCalculationResponse response = (LoanCalculationResponse) mapper.toResponse(loan);
 
         assertThat(response.loan().amount()).isEqualByComparingTo("1000");
         assertThat(response.loan().annualInterestRate()).isEqualByComparingTo("5");

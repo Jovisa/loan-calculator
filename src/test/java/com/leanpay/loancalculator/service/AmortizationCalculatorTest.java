@@ -1,6 +1,6 @@
 package com.leanpay.loancalculator.service;
 
-import com.leanpay.loancalculator.dto.LoanCalculationRequest;
+import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
 import com.leanpay.loancalculator.entity.Installment;
 import com.leanpay.loancalculator.entity.Loan;
 import org.junit.jupiter.api.BeforeEach;

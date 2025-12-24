@@ -1,6 +1,6 @@
 package com.leanpay.loancalculator.mapper;
 
-import com.leanpay.loancalculator.dto.InstallmentDto;
+import com.leanpay.loancalculator.dto.response.InstallmentDto;
 import com.leanpay.loancalculator.entity.Installment;
 import org.junit.jupiter.api.Test;
 

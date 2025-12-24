@@ -5,12 +5,11 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+@Entity
 @Builder
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class Installment {
 
     @Id
