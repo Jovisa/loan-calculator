@@ -6,6 +6,7 @@ import com.leanpay.loancalculator.entity.Loan;
 import com.leanpay.loancalculator.mapper.LoanCalculationResponseMapper;
 import com.leanpay.loancalculator.repository.LoanRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,10 @@ public class LoanService {
     private final LoanCalculationResponseMapper responseMapper;
     private final AsyncLoanCreationService asyncLoanCreationService;
 
+    @Cacheable(
+            value = "loans",
+            key = "#request.amount + ':' + #request.annualInterestRate + ':' + #request.numberOfMonths"
+    )
     @Transactional
     public LoanResponse calculateLoan(LoanCalculationRequest request) {
         return getLoanIfExists(request)

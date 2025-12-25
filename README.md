@@ -114,7 +114,7 @@ To run the full suite of unit and integration tests, execute the following comma
 - Calculated loans and installment plans are persisted in database
 - **Idempotent**: identical requests (same amount, interest rate, and duration) return the same persisted loan instead of creating duplicates.
 - **Asynchronous**: Loan calculation is an expensive operation (≈ 10 seconds) and is therefore processed asynchronously
-
+- **Cache**: responses are cached to increase performance
 
 ### Request
 ```json
@@ -158,9 +158,7 @@ To run the full suite of unit and integration tests, execute the following comma
 #### 1. Status Response (Calculation in progress)
 - Returned when the loan calculation has **not finished yet**.
 - Indicates that the loan calculation has been accepted and is currently being processed
-
 - Clients may safely retry the same request
-
 - Retrying does not create duplicate loans
 
 ```json
@@ -176,7 +174,8 @@ To run the full suite of unit and integration tests, execute the following comma
 <br>
 
 #### 2. Full Response (Calculation completed)
-Returned once the loan calculation has finished.
+- Returned once the loan calculation has finished.
+- Cache: response is cached with 10 minutes lifespan
 
 ```json
 {
