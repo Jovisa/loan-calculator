@@ -156,7 +156,12 @@ To run the full suite of unit and integration tests, execute the following comma
 ### Response
 
 #### 1. Status Response (Calculation in progress)
-Returned when the loan calculation has **not finished yet**.
+- Returned when the loan calculation has **not finished yet**.
+- Indicates that the loan calculation has been accepted and is currently being processed
+
+- Clients may safely retry the same request
+
+- Retrying does not create duplicate loans
 
 ```json
 {
@@ -168,14 +173,7 @@ Returned when the loan calculation has **not finished yet**.
   "status": "CALCULATING"
 }
 ```
-
-#### Notes
-- Indicates that the loan calculation has been accepted and is currently being processed
-
-- Clients may safely retry the same request
-
-- Retrying does not create duplicate loans
----
+<br>
 
 #### 2. Full Response (Calculation completed)
 Returned once the loan calculation has finished.

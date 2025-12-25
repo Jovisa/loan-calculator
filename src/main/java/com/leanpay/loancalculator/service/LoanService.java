@@ -34,8 +34,6 @@ public class LoanService {
         );
     }
 
-    // todo DataIntegrityViolationException
-
     private LoanResponse createAndSaveLoan(LoanCalculationRequest request) {
         asyncLoanCreationService.createAndSaveLoanAsync(request);
         return responseMapper.toStatusResponse(request);
