@@ -1,5 +1,6 @@
 package com.leanpay.loancalculator.service;
 
+import com.leanpay.loancalculator.cache.LoanCacheFacade;
 import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
 import com.leanpay.loancalculator.dto.response.*;
 import com.leanpay.loancalculator.entity.Loan;
@@ -29,6 +30,9 @@ class LoanServiceTest {
 
     @Mock
     private AsyncLoanCreationService asyncLoanCreationService;
+
+    @Mock
+    private LoanCacheFacade cache;
 
     @InjectMocks
     private LoanService loanService;
@@ -60,7 +64,13 @@ class LoanServiceTest {
 
     @Test
     void calculateLoan_whenLoanDoesNotExist_shouldTriggerAsyncCreationAndReturnStatusResponse() {
+
         // given
+        String key = "1000:5:10";
+
+        when(cache.generateCacheKey(REQUEST)).thenReturn(key);
+        when(cache.getResponseFromCache(key)).thenReturn(Optional.empty());
+
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
                 REQUEST.annualInterestRate(),
@@ -71,11 +81,15 @@ class LoanServiceTest {
                 .thenReturn(STATUS_RESPONSE);
 
         // when
-        LoanResponse actualResponse =
-                loanService.calculateLoan(REQUEST);
+        LoanResponse actualResponse = loanService.calculateLoan(REQUEST);
 
         // then
         assertThat(actualResponse).isEqualTo(STATUS_RESPONSE);
+
+        verify(cache).generateCacheKey(REQUEST);
+        verify(cache).getResponseFromCache(key);
+        verify(asyncLoanCreationService).createAndSaveLoanAsync(REQUEST);
+        verify(cache).putStatusResponse(key, STATUS_RESPONSE);
 
         verify(loanRepository).findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
@@ -83,21 +97,20 @@ class LoanServiceTest {
                 REQUEST.numberOfMonths()
         );
 
-        verify(asyncLoanCreationService).createAndSaveLoanAsync(REQUEST);
-        verify(responseMapper).toStatusResponse(REQUEST);
-
-        verify(loanRepository, never()).save(any());
-
         verifyNoMoreInteractions(
                 loanRepository,
                 responseMapper,
-                asyncLoanCreationService
+                asyncLoanCreationService,
+                cache
         );
     }
 
     @Test
     void calculateLoan_whenLoanAlreadyExists_shouldReturnExistingLoanSynchronously() {
+
         // given
+        String key = "1000:5:10";
+
         Loan existingLoan = Loan.builder()
                 .id(42L)
                 .amount(REQUEST.amount())
@@ -105,36 +118,39 @@ class LoanServiceTest {
                 .numberOfMonths(REQUEST.numberOfMonths())
                 .build();
 
+        when(cache.generateCacheKey(REQUEST)).thenReturn(key);
+        when(cache.getResponseFromCache(key)).thenReturn(Optional.empty());
+
         when(loanRepository.findByAmountAndAnnualInterestRateAndNumberOfMonths(
                 REQUEST.amount(),
                 REQUEST.annualInterestRate(),
                 REQUEST.numberOfMonths()
         )).thenReturn(Optional.of(existingLoan));
 
-        when(responseMapper.toResponse(existingLoan))
-                .thenReturn(RESPONSE);
+        when(responseMapper.toResponse(existingLoan)).thenReturn(RESPONSE);
 
         // when
-        LoanResponse actualResponse =
-                loanService.calculateLoan(REQUEST);
+        LoanResponse actualResponse = loanService.calculateLoan(REQUEST);
 
         // then
         assertThat(actualResponse).isEqualTo(RESPONSE);
 
-        verify(loanRepository).findByAmountAndAnnualInterestRateAndNumberOfMonths(
-                REQUEST.amount(),
-                REQUEST.annualInterestRate(),
-                REQUEST.numberOfMonths()
-        );
-        verify(responseMapper).toResponse(existingLoan);
+        verify(cache).generateCacheKey(REQUEST);
+        verify(cache).getResponseFromCache(key);
+        verify(cache).putFullResponse(key, RESPONSE);
+        verify(cache).evictStatusResponse(key);
 
+        verify(responseMapper).toResponse(existingLoan);
         verifyNoInteractions(asyncLoanCreationService);
-        verify(loanRepository, never()).save(any());
 
         verifyNoMoreInteractions(
                 loanRepository,
-                responseMapper
+                responseMapper,
+                cache
         );
     }
+
+
+
 }
 

@@ -2,6 +2,7 @@ package com.leanpay.loancalculator.integration;
 
 
 import com.leanpay.loancalculator.dto.request.LoanCalculationRequest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Testcontainers
+@Tag("slow")
 class LoanControllerIT {
 
     @Container

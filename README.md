@@ -160,6 +160,7 @@ To run the full suite of unit and integration tests, execute the following comma
 - Indicates that the loan calculation has been accepted and is currently being processed
 - Clients may safely retry the same request
 - Retrying does not create duplicate loans
+- **Cache lifespan**: 5 seconds
 
 ```json
 {
@@ -175,7 +176,7 @@ To run the full suite of unit and integration tests, execute the following comma
 
 #### 2. Full Response (Calculation completed)
 - Returned once the loan calculation has finished.
-- Cache: response is cached with 10 minutes lifespan
+- **Cache lifespan**: 10 minutes
 
 ```json
 {
