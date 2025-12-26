@@ -1,13 +1,15 @@
 package com.leanpay.loancalculator.cache;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 @Configuration
 @EnableCaching
@@ -17,26 +19,34 @@ public class CacheConfig {
     public static final String STATUS_RESPONSE_CACHE = "statusResponse";
 
     @Bean
-    public CacheManager cacheManager() {
-        CaffeineCacheManager manager = new CaffeineCacheManager(
-                FULL_RESPONSE_CACHE, STATUS_RESPONSE_CACHE);
+    public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
 
-        manager.registerCustomCache(
-                FULL_RESPONSE_CACHE,
-                Caffeine.newBuilder()
-                        .maximumSize(10_000)
-                        .expireAfterWrite(10, TimeUnit.MINUTES)
-                        .build()
-        );
+        RedisSerializationContext.SerializationPair<Object> jsonSerializer =
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                        RedisSerializer.json()
+                );
 
-        manager.registerCustomCache(
-                STATUS_RESPONSE_CACHE,
-                Caffeine.newBuilder()
-                        .maximumSize(10_000)
-                        .expireAfterWrite(5, TimeUnit.SECONDS)
-                        .build()
-        );
+        RedisCacheConfiguration baseConfig =
+                RedisCacheConfiguration.defaultCacheConfig()
+                        .serializeValuesWith(jsonSerializer)
+                        .disableCachingNullValues();
 
-        return manager;
+        RedisCacheConfiguration statusCacheConfig =
+                baseConfig.entryTtl(Duration.ofSeconds(5));
+
+        RedisCacheConfiguration fullCacheConfig =
+                baseConfig.entryTtl(Duration.ofMinutes(10));
+
+        return RedisCacheManager.builder(factory)
+                .withCacheConfiguration(
+                        CacheConfig.STATUS_RESPONSE_CACHE,
+                        statusCacheConfig
+                )
+                .withCacheConfiguration(
+                        CacheConfig.FULL_RESPONSE_CACHE,
+                        fullCacheConfig
+                )
+                .build();
     }
+
 }
