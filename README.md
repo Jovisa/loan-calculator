@@ -55,8 +55,9 @@ Before you begin, ensure you have the following installed on your system:
     docker compose up -d
   ```
 ---
+<br>
 
-### 3. Accessing the Application
+### Accessing the Application
 After successful start you should see 3 Docker containers:
 - postgres (DB)
 - redis (Cache)
