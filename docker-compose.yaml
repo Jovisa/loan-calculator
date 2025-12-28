@@ -1,5 +1,6 @@
 
 services:
+
   postgres:
     image: postgres:16
     container_name: postgres
@@ -30,6 +31,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  loan-calculator-app:
+    build: .
+    container_name: loan-calculator-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: pass
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
