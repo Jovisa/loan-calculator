@@ -25,20 +25,21 @@ Before you begin, ensure you have the following installed on your system:
 
 ## Tech Stack
 
-| Category          | Technology                                                  |
-| ----------------- | ----------------------------------------------------------- |
-| **Backend**       | Java 21, Spring Boot, Spring Data JPA, Hibernate                      |
-| **Database**      | PostgreSQL                                                  |
-| **Build Tool**    | Gradle                                                      |
-| **Testing**       | JUnit 5, Mockito, Testcontainers, JaCoCo                      |
-| **Containerization**| Docker                                                      |
+| Category             | Technology                                       |
+|----------------------|--------------------------------------------------|
+| **Backend**          | Java 21, Spring Boot, Spring Data JPA, Hibernate |
+| **Build Tool**       | Gradle                                           |
+| **Database**         | PostgreSQL                                       |
+| **Cache**            | Redis                                            |
+| **Testing**          | Testcontainers, JUnit 5, Mockito, JaCoCo         |
+| **Containerization** | Docker                                           |
 
 ---
 
 ## Running Application Locally
 
 ### 1. Start the Database
-First, ensure the Docker daemon is running on your machine. Then, start the PostgreSQL database using Docker Compose.
+First, ensure the Docker daemon is running on your machine. Then, start the PostgreSQL database and Redis containers using Docker Compose.
 
 From the project's root directory, run:
 ```shell

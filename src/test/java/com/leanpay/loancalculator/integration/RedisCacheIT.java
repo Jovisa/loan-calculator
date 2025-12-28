@@ -8,8 +8,6 @@ import com.leanpay.loancalculator.service.LoanService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -21,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Import(RedisTestConfig.class)
 public class RedisCacheIT extends AbstractIntegrationTest{
 
     private static final LoanCalculationRequest REQUEST =
@@ -42,9 +39,6 @@ public class RedisCacheIT extends AbstractIntegrationTest{
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private LoanService loanService;
@@ -73,7 +67,7 @@ public class RedisCacheIT extends AbstractIntegrationTest{
 
         loanService.calculateLoan(REQUEST);
 
-        Set<String> keys = redisTemplate.keys("*");
+        Set<String> keys = stringRedisTemplate.keys("*");
         assertFalse(keys.isEmpty());
         assertTrue(keys.contains(STATUS_RESPONSE_KEY));
 
@@ -107,12 +101,12 @@ public class RedisCacheIT extends AbstractIntegrationTest{
         assertNotNull(json);
 
         // assert status cache evict
-        Set<String> keys = redisTemplate.keys("*");
+        Set<String> keys = stringRedisTemplate.keys("*");
         assertFalse(keys.contains(STATUS_RESPONSE_KEY));
         assertTrue(keys.contains(FULL_RESPONSE_KEY));
 
         // assert fullResponse cache TTL
-        Long ttl = redisTemplate.getExpire(FULL_RESPONSE_KEY, TimeUnit.MINUTES);
+        Long ttl = stringRedisTemplate.getExpire(FULL_RESPONSE_KEY, TimeUnit.MINUTES);
         assertNotNull(ttl);
         assertTrue(ttl > 0);
         assertTrue(ttl <= 10);
@@ -137,7 +131,7 @@ public class RedisCacheIT extends AbstractIntegrationTest{
     void shouldHaveTtlOnStatusCacheEntry() {
         loanService.calculateLoan(REQUEST);
 
-        Long ttl = redisTemplate.getExpire(STATUS_RESPONSE_KEY, TimeUnit.SECONDS);
+        Long ttl = stringRedisTemplate.getExpire(STATUS_RESPONSE_KEY, TimeUnit.SECONDS);
 
         assertNotNull(ttl);
         assertTrue(ttl > 0);
