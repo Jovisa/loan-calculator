@@ -54,21 +54,15 @@ Before you begin, ensure you have the following installed on your system:
   ```shell
     docker compose up -d
   ```
-*- The `-d` flag runs the container in detached mode.*
-
 ---
 
-
-
-
-
+### 3. Accessing the Application
 After successful start you should see 3 Docker containers:
 - postgres (DB)
 - redis (Cache)
 - app: (Loan Calculator Spring Boot App)
----
 
-### 3. Accessing the Application
+
 Once running, the API will be available at `http://localhost:8080`.
 
 ---
