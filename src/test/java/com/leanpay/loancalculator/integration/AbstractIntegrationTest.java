@@ -15,12 +15,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class AbstractIntegrationTest {
 
     @Container
-    static final GenericContainer<?> redis =
+    static final GenericContainer<?> REDIS =
             new GenericContainer<>("redis:8.4.0-alpine")
                     .withExposedPorts(6379);
 
     @Container
-    static final PostgreSQLContainer<?> postgres =
+    static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>("postgres:15.3")
                     .withDatabaseName("loan_calculator")
                     .withUsername("user")
@@ -28,12 +28,14 @@ public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
-        registry.add("spring.redis.host", redis::getHost);
-        registry.add("spring.redis.port", () -> redis.getMappedPort(6379));
+        // REDIS
+        registry.add("spring.data.redis.host", REDIS::getHost);
+        registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
 
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
+        // POSTGRES
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
     }
 }
 

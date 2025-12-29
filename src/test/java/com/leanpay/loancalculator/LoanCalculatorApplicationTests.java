@@ -1,10 +1,10 @@
 package com.leanpay.loancalculator;
 
+import com.leanpay.loancalculator.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class LoanCalculatorApplicationTests {
+
+class LoanCalculatorApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {

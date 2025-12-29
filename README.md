@@ -79,7 +79,6 @@ To stop application, run:
 <br>
 
 ## Running Tests
-`make sure that app is running, all containers are running, before running tests` <br>To run the full suite of unit and integration tests, execute the following command:
 
 - On Linux/macOS:
   ```shell

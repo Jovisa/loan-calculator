@@ -1,5 +1,9 @@
 
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 0
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -9,5 +13,3 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  cache:
-    type: redis

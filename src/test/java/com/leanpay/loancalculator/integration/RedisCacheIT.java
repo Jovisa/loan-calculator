@@ -52,6 +52,11 @@ public class RedisCacheIT extends AbstractIntegrationTest{
                 .flushAll();
     }
 
+    @Test
+    void givenRedisContainerConfiguredWithDynamicProperties_whenCheckingRunningStatus_thenStatusIsRunning() {
+        assertTrue(REDIS.isRunning());
+    }
+
 
     @Test
     void shouldPutAndGetEntryFromRedis() {
