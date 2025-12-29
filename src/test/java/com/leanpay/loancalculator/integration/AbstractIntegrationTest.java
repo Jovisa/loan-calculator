@@ -1,14 +1,14 @@
 package com.leanpay.loancalculator.integration;
 
+import com.redis.testcontainers.RedisContainer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
 @SpringBootTest
@@ -16,12 +16,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class AbstractIntegrationTest {
 
     @Container
-    static final GenericContainer<?> REDIS =
-            new GenericContainer<>("redis:8.4.0-alpine")
-                    .withExposedPorts(6379)
-                    // Wait for Redis to actually be ready before starting tests
-                    //todo this makes tests work in ci-cd script but brakes them when run via ./gradlew test
-                    .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+    static final RedisContainer REDIS = new RedisContainer(DockerImageName.parse("redis:8.4.0-alpine"));
+
+//            .withExposedPorts(6379);
+
+//            new GenericContainer<>("redis:8.4.0-alpine")
+//                    .withExposedPorts(6379);
+//                    // Wait for Redis to actually be ready before starting tests
+//                    //todo this makes tests work in ci-cd script but brakes them when run via ./gradlew test
+////                    .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
     @Container
     static final PostgreSQLContainer<?> POSTGRES =

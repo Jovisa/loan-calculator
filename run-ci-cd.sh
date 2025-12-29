@@ -7,12 +7,18 @@ echo "======================================"
 echo " Cleaning up environment..."
 echo "======================================"
 docker compose down --remove-orphans
+./gradlew --stop
+
+echo "Checking Docker availability"
+docker info
+
+export TESTCONTAINERS_RYUK_DISABLED=true
 
 echo "                                      "
 echo "======================================"
 echo " Running tests"
 echo "======================================"
-REDIS_HOST= REDIS_PORT= ./gradlew test
+REDIS_HOST= REDIS_PORT= ./gradlew clean test --no-daemon
 
 echo "                                      "
 echo "======================================"
